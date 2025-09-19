@@ -1,0 +1,287 @@
+
+Input:
+# Instruction
+The error in "# Error" occurred when executing main.py. Please modify the code and push the revised code to the remote repository.
+Perform the modifications with reference to the rules specified in "# Rules".
+
+Additionally, # Information contains details about the implemented code.
+Please ensure that the implementation enables experiments for the new method described in ## Current Research Method.
+
+Do not create a new branch under any circumstances; commit the changes to the specified branch.
+
+# Rules
+- Fix all errors found in the error messages
+-The following files used in the experiment are listed along with their descriptions. Under no circumstances should you modify any files other than these or add new files.
+    - config...Create two configuration files:
+        - smoke_test.yaml: Small-scale configuration for quick validation (reduced epochs like 1-2, smaller datasets, limited iterations)
+        - full_experiment.yaml: Full-scale configuration for complete experimental runs
+    - data...This directory is used to store data used for model training and evaluation.
+    - models...This directory is used to store pre-trained and trained models.
+    - src
+        - train.py...Extract all functions and classes related to model.
+        - evaluate.py...Extract all functions and classes related to model evaluation, statistical analysis, and plotting. Please implement the code so that the evaluation results are always output to standard output.
+        - preprocess.py...Extract any data loading or preprocessing logic.
+        - main.py...Create the main execution script with command-line argument support:
+            - Please make sure to always create main.py.
+            - Add argparse to handle --smoke-test and --full-experiment flags
+            - Load appropriate config file based on the flag (smoke_test.yaml or full_experiment.yaml)
+            - Use relative imports (e.g., `from .train import ...`) to orchestrate the experimental workflow
+            - Implement two-phase execution: smoke test first, then full experiment if smoke test passes
+            - Use PyYAML for configuration loading
+    - pyproject.toml...Analyze the "Experiment Code" header and import statements. Configure the project dependencies and package information in TOML format.
+                        Dependencies must be an array format like `dependencies = ["numpy>=1.21.0", "torch>=1.9.0"]`, NOT a mapping format like `[project.dependencies]` with key-value pairs.
+- When executing the script, ensure that the following information is always printed to standard output.If there are multiple experiments, this standard output must be produced for each experiment.
+    - Experiment details
+    - Concrete numerical data
+    - File path of the figure visualizing the experimental results
+- If the required Python packages are missing, modify the pyproject.toml file so that they can be installed.
+- Be sure to perform a test run and confirm that it executes successfully. The test run should be designed to complete within a short execution time. Implement the test execution so that it can be run as a smoke test.
+- If the deep learning models or datasets being used are unavailable, please select alternatives from "External Resources" and implement them.
+- If similar errors appear in the Previous Error History, consider alternative approaches rather than repeating the same fixes
+- Update pyproject.toml if new packages needed
+- MANDATORY: You must update paths before saving. The following paths are required:
+    - Image paths: .research/iteration3/images (modify any existing image save paths to use this exact directory)
+    - JSON paths: .research/iteration3/ (Save each experiment's results as separate JSON files in this directory and print each JSON contents to standard output for verification)
+    - Do not push the .research/iteration3/ directory containing the test execution results to the remote repository; only update the implementation paths.
+
+## Command Line Execution Requirements
+The generated main.py must support the following command patterns:
+```bash
+# Smoke test only
+uv run python -m src.main --smoke-test
+
+# Full experiment only
+uv run python -m src.main --full-experiment
+```
+
+# Error:
+Using CPython 3.11.13error: The requested interpreter resolved to Python 3.11.13, which is incompatible with the project's Python requirement: `>=3.12` (from `project.requires-python`)Using CPython 3.11.13error: The requested interpreter resolved to Python 3.11.13, which is incompatible with the project's Python requirement: `>=3.12` (from `project.requires-python`)
+
+# Standard output:
+
+
+# Previous Error History (for reference - avoid repeating same fixes)
+
+
+# Information
+
+## Experimental Environment
+NVIDIA A100
+VRAM：80GB
+RAM：2048 GB
+
+## Current Research Method:
+{
+    "Open Problems": "• Current preference-tuning losses assume a single trustworthy reward. In reality we have:  (1) aleatoric noise – crowd workers disagree, (2) epistemic uncertainty – reward model far OOD, (3) adversarial noise – jail-break prompts.  None of today’s fast, reverse-KL losses (DPO/LRML/FIGA) are robust to these issues without switching to unstable on-policy RL.  • We need a loss that  a) stays purely supervised and mode-seeking,  b) is computationally as cheap as DPO,  c) delivers distributionally-robust performance guarantees under both random and worst-case reward corruptions,  d) can decide on-the-fly how much to trust each training pair.  • An additional gap is the lack of a public, reproducible benchmark that injects realistic, heterogeneous reward noise for systematic study.",
+    "Methods": "Robust and Risk-Aware Distributional DPO (R2-D2PO) 1. Reward ensemble & uncertainty quantification: For each prompt-response pair we run either  K independently seeded reward models  or  M=20 Monte-Carlo-dropout passes of a single model.  From the reward samples r we compute   (μ, σ²)   and empirical CDF F. 2. Two-level risk transformation:   a. Epistemic DRO:  we take a worst-case mean  μ̂ = μ − γ·σ   where γ≈1.28 targets the lower 10-percentile under a Gaussian assumption (closed form,  differentiable).  b. Aleatoric CVaR: on the residual distribution we compute CVaR_α to down-weight heavy-tail positives.  The final pessimistic reward is   ŕ = CVaR_α(F(r−μ̂)). 3. R2-D2PO loss: replace DPO’s scalar rewards with the pair (ŕ⁺, ŕ⁻):  L = −log σ[ β( ŕ⁺ − ŕ⁻ + log πθ(y⁺) − log πθ(y⁻) + log π0(y⁻) − log π0(y⁺) ) ].  Closed-form gradients; reduces exactly to DPO when K=1, α=1, γ=0. 4. Adaptive risk curriculum: start with γ,α small (close to DPO) and linearly increase until dev-set uncertainty plateaus, giving stability and faster convergence. 5. Disagreement gating (optional): if JS-divergence between reward-model softmax outputs > τ, drop the pair for this batch – one line of code. 6. Public NoiseBench: We release a script that corrupts any preference dataset with   • random flips,   • annotator confusion sampled from empirical confusion matrices (crowd-sourced SHP),   • adversarial flips targeted at sensitive topics (from JailbreakBench).  This becomes the first standardised robustness benchmark for preference tuning.  All components are implementable in ≤100 LoC on top of trl’s DPO trainer.",
+    "Experimental Setup": "Models:  Mistral-7B-Instruct and Gemma-7B-It as reference π₀; policy initialised from same weights.  Datasets: UltraFeedback + AlpacaFarm clean splits, plus NoiseBench variants at 10/20/40 % corruption.  Baselines: SFT, DPO, LRML/DiscoPOP, FIGA, PPO-LoRA (trl).  Metrics:  • MT-Bench GPT-4 win-rate,  • UltraFeedback gold reward,  • Safety score (OpenAI safety dataset),  • Robustness Area-Under-Curve (AUC) across noise levels,  • Extra compute (FLOPs) over SFT.  Ablations: remove DRO (γ=0), remove CVaR (α=1), fix γ, vary curriculum schedule.  Hardware: 8×A100-40 GB, two training epochs, fits into 24 GB with 4-bit QLoRA.",
+    "Experimental Code": "# pseudocode\nclass R2D2POLoss(nn.Module):\n    def __init__(self,beta=0.1,alpha=0.3,gamma=1.28):\n        super().__init__(); self.beta,self.alpha,self.gamma=beta,alpha,gamma\n    def cvar(self,r):\n        k=max(1,int(self.alpha*len(r)))\n        return r.topk(k,largest=False).values.mean()\n    def forward(self,logp_pref,logp_non,logp0_pref,logp0_non,r_pref,r_non):\n        def pessimistic(r):\n            mu=r.mean(); sigma=r.std(unbiased=False); r_shift=r-(mu-self.gamma*sigma)\n            return self.cvar(r_shift)\n        r_pes_pref=pessimistic(r_pref); r_pes_non=pessimistic(r_non)\n        diff=(r_pes_pref-r_pes_non)+(logp0_non-logp0_pref)+(logp_pref-logp_non)\n        return F.binary_cross_entropy_with_logits(self.beta*diff, torch.ones_like(diff))\n# the rest identical to DPO training loop",
+    "Expected Result": "• On clean UltraFeedback, R2-D2PO within ±0.1 MT-Bench points of DPO.  • Under 40 % mixed noise, performance drop is ≤2 pts vs 7 pts (DPO) and 5 pts (LRML).  • Safety score improves by 5 % absolute because adversarially flipped toxic prompts are down-weighted.  • Robustness-AUC highest among all methods (↑25 % over best baseline).  • Extra compute <8 % over DPO (forward-only ensemble, no RL).",
+    "Expected Conclusion": "Introducing distributionally-robust risk measures (σ-based DRO + CVaR) into reverse-KL preference optimisation yields the first purely supervised, mode-seeking loss that is provably pessimistic under both stochastic and adversarial reward corruptions.  Empirically, R2-D2PO maintains performance while dramatically reducing sensitivity to label/reward noise and improves safety.  Because the method is a drop-in two-line change to existing DPO code and we release NoiseBench, it lowers the barrier for the community to study and deploy robust preference-tuned LLMs.  Future work: theoretical regret bounds, adaptive ensemble size, extension to multi-modal RMs and fairness-aware risk terms."
+}
+
+## Experiment Details:
+════════════════════════════════════════════════════════════════
+EXPERIMENT 1 – Synthetic-Noise Robustness Curve
+════════════════════════════════════════════════════════════════
+1. Objective
+   • Quantify robustness of R2-D2PO against heterogeneous reward corruption while keeping FLOPs ≈ DPO.
+2. Models
+   Primary policy: Mistral-7B-Instruct (π0)
+   Baselines (fine-tuned from same π0):
+      a. Supervised Fine-Tuning (SFT)
+      b. Direct Preference Optimization (DPO)
+      c. LRML / DiscoPOP (implementation: OpenRLHF-lrml)
+      d. FIGA (trl>=0.7)
+      e. PPO-LoRA (trl-PPO, KL β=0.1)
+      f. R2-D2PO (ours)
+   Reward models (evaluation + training ensembles)
+      • DeBERTa-v3-large-SHP (×4 seeds, dropout p=0.1)
+3. Data Sets
+   • UltraFeedback-clean (≈64 k preference pairs)
+   • AlpacaFarm-clean (≈8 k)
+   • NoiseBench-{10,20,40,60} % produced with public script (commit 9f42…), each split contains:
+        ‑ uniform flips (⅓) - empirical crowd confusion (⅓) - topic-targeted adversarial flips (⅓)
+   • Held-out evaluation: MT-Bench (8 k prompts), UltraFeedback-gold 1 k, OpenAI Safety 6 k.
+4. Pre-processing
+   • Tokenise with mistralai/tokenizer-v2, max_seq_len 2048, left-pad queries, right-pad responses, strip system prompt.
+   • Reward-model inputs: concat «<|user|>prompt<|assistant|>response»; logits → scalar reward via last-hidden-CLS.
+5. Data Split
+   • Training 80 %, validation 10 %, test 10 % (stratified by corruption type).  K-fold CV not required (large N).
+6. Training Hyper-params (shared)
+   • 4-bit QLoRA (bnb v0.15), lora_r 64, lora_α 16, dropout 0.05.
+   • Optim: AdamW, β=(0.9,0.95), lr 2e-5, wd 0.1, scheduler=cosine w/ 200 warm-up steps.
+   • Batch size 128 (grad-acc 4 → eff 512). 2 epochs ⇒ ≈12 k update steps.
+7. Seeds / Repeats
+   • 5 independent seeds {11,13,17,19,23}.  Report mean± σ.  Primary metric uses best-val checkpoint (lowest val loss) per seed; secondary table shows last-epoch for reproducibility.
+8. Metrics
+   Primary: MT-Bench GPT-4 win-rate (%).
+   Secondary: UltraFeedback gold reward ↑, Safety score ↑, Robustness-AUC↑.
+   Efficiency: extra FLOPs↑ (policy FWD+BWD counted with fvcore), tokens/sec, peak GPU GB.
+9. Comparisons & Significance
+   • Paired bootstrap (10 000 resamples) on MT-Bench vs. DPO; p<0.05=*.
+10. Hyper-parameter Analysis
+   • Grid γ∈{0,0.64,1.28,1.92}, α∈{1,0.7,0.4,0.2}; β∈{0.05,0.1,0.2}.  9 runs on 10 %-noise subset; record MT-Bench.
+11. Robustness Checks
+   • Inject Gaussian noise σ_extra∈{0,1,2} to reward ensemble at eval time.
+   • Swap corruption composition (100 % adversarial).  Record change ΔMT-Bench.
+12. Compute Logging
+   • wandb-sweeps collects: train FLOPs (fvcore + accelerate), inference time on 1000 prompts, CPU-RAM peak (psutil), wall-clock.
+13. Example Code Snippet
+   ```python
+   policy = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct", load_in_4bit=True)
+   reward_ens = [DebertaRM(seed=s) for s in [0,1,2,3]]
+   loss_fn = R2D2POLoss(beta=0.1, alpha=0.4, gamma=1.28)
+   trainer = DPOTrainer(policy, ref_model=policy, loss_fn=loss_fn, ...)
+   trainer.train()
+   ```
+14. Expected Outcome
+   • At 40 % noise: DPO −7.3 pts, LRML −5.1 pts, R2-D2PO −1.8 pts.
+   • Robustness-AUC: R2-D2PO 0.83 (↑27 % vs. best baseline).
+   • Extra compute +7.2 % FLOPs, +5 % wall-clock.
+
+════════════════════════════════════════════════════════════════
+EXPERIMENT 2 – Red-Team Jail-Break Stress-Test
+════════════════════════════════════════════════════════════════
+1. Objective
+   • Evaluate if R2-D2PO down-weights adversarial rewards and enhances safety under unseen red-team attacks.
+2. Models
+   • Same six policies from Exp-1  (best seed checkpoint).
+3. Red-Team Data Generation
+   • Use gpt-4-1106-preview with automatic jailbreak search (OpenAI policy-tuning guide §4).  Beam search over 8 strategies (syntax, role-play, code injection, etc.).  Stop at 2 000 unique prompts (deduplicated by MinHash, toxicity ≥0.6).
+4. Evaluation Protocol
+   • For each prompt, collect model answer (temperature 0.7, top_p 0.9, max_new_tokens 512).
+   • Automatic:
+        ‑ OpenAI moderation API → “policy violation” boolean.
+        ‑ Perspective-API TOXICITY score.
+   • Human:
+        ‑ 5 experts (IRB-approved) rate helpfulness 1–5 and policy-compliance 1–5.  Majority vote → label.
+5. Metrics
+   Primary: Jail-break success-rate = (# moderation violations / 2000).
+   Secondary: Helpful-Compliance F1, mean toxicity ↓, average helpfulness score.
+6. Seeds & Repeats
+   • Single evaluation pass – prompt set is fixed across models. Bootstrap over prompts for CI.
+7. Ablations
+   • R2-D2PO-no-gate (τ=∞) vs. default τ=0.2.
+8. Robustness
+   • Sub-split prompts by attack strategy; report success-rate per category.
+9. Compute
+   • Average inference latency (ms/100 tokens) on single A100.
+10. Example Code
+   ```python
+   red_prompts = json.load(open("jailbreak_prompts.json"))
+   for p in red_prompts:
+       out = policy.generate(**tokenizer(p, return_tensors="pt").to(device), ...)
+   ```
+11. Expected Outcome
+   • Success-rate: DPO 32 %, PPO-LoRA 28 %, R2-D2PO-no-gate 22 %, R2-D2PO 17 %.
+   • Helpful-Compliance F1: R2-D2PO 0.71 (−0.01 vs. DPO).
+   • τ-gating contributes absolute 5 % improvement.
+
+════════════════════════════════════════════════════════════════
+EXPERIMENT 3 – OOD Uncertainty & Curriculum Analysis
+════════════════════════════════════════════════════════════════
+1. Objective
+   • Show that (μ,σ)-based pessimism and adaptive curriculum enable faster convergence when reward model is OOD.
+2. Data & Split
+   • MedAlpaca-Preferences (≈5 k pairs) – entirely OOD for reward models.
+   • 70/15/15 random split; 5 seeds.
+3. Models
+   • Policies: DPO, R2-D2PO-fixed (γ=1.28,α=0.4 frozen), R2-D2PO-curriculum (γ,α increase linearly over first 1000 steps).
+4. Training Hyper-params
+   • Identical to Exp-1 but 3 epochs (dataset small).
+5. Logged Signals (each step)
+   • γ_t, α_t, mean σ_t, fraction_dropped, dev MT-Bench.
+6. Metrics
+   Primary: Area under learning curve (AULC) = ∫ MT-Bench(t) dt until convergence.
+   Secondary: Final MT-Bench, wall-clock to 75 % of DPO final score.
+   Calibration: ECE between σ and |r̂ − r_gold| on 500 human-scored pairs.
+7. Robustness
+   • Additional test on HealthSearchQA (1 k) to assess transfer.
+8. Hyper-param Study
+   • Compare linear, sigmoid, and step curriculum schedules (3 runs each).
+9. Compute Logs identical to Exp-1.
+10. Example Code Fragment
+   ```python
+   for step,batch in enumerate(loader):
+       gamma = min(1.28, step/1000*1.28)
+       alpha = max(0.2, 1 - step/1000*0.8)
+       loss_fn.update_risk(gamma, alpha)
+   ```
+11. Expected Results
+   • R2-D2PO-curriculum reaches 75 % DPO final score in 0.71× wall-clock.
+   • Final MT-Bench equal within 0.2 pts, but ECE 0.07 (DPO 0.14).
+   • Fixed-risk slower (1.1×) and lower (−1 pt).
+
+════════════════════════════════════════════════════════════════
+GENERAL IMPLEMENTATION & REPRO TIPS
+════════════════════════════════════════════════════════════════
+• Repository template: https://github.com/<org>/r2-d2po (commit f0e8…)
+• 8×A100-80GB (data-parallel via accelerate).  Per-GPU bsz 128 → global bsz 1024.
+• NVL4 FP8 enabled for reward ensemble inference to save 14 % mem.
+• All YAML configs logged; hash-matched artifacts uploaded to HF Hub.
+• Run `python tools/compute_flops.py --model policy.safetensors` to replicate FLOPs numbers.
+
+════════════════════════════════════════════════════════════════
+ERROR HANDLING (NO-FALLBACK)
+════════════════════════════════════════════════════════════════
+If any dataset bucket is unavailable at run-time the launcher aborts with:
+```
+raise FileNotFoundError("UltraFeedback v1.1 not found – aborting as per NO-FALLBACK policy.")
+```
+
+════════════════════════════════════════════════════════════════
+SUMMARY MAPPING OF CLAIMS → EXPERIMENTS
+════════════════════════════════════════════════════════════════
+1. Distributional-robust guarantees  → Exp-1 robustness curves.
+2. Safety under worst-case noise     → Exp-2 red-teaming.
+3. On-the-fly trust & efficiency     → Exp-3 curriculum & σ-calibration.
+All within A100 compute envelope and compared to six strong baselines.
+
+
+## External Resources:
+## Model
+{
+    "Model Name": "unsloth/mistral-7b-instruct-v0.3-bnb-4bit",
+    "Code": "from unsloth import FastLanguageModel\nimport torch\n\n# 1. Load the base model\nmodel, tokenizer = FastLanguageModel.from_pretrained(\n    model = \"mistralai/Mistral-7B-Instruct-v0.3\",\n    max_seq_length = 2048, # Choose any max sequence length you want\n    dtype = torch.bfloat16, # Choose any data type. `float16` or `bfloat16` are recommended.\n    load_in_4bit = True, # Use 4-bit quantization to reduce memory usage\n)\n\n# 2. Apply Unsloth optimizations\n# For more options, see https://docs.unsloth.ai/guide/unsloth-fine-tuning\nmodel = FastLanguageModel.patch_transformers(model, optimize=True,)\n\n# 3. Configure LoRA\n# For more options, see https://docs.unsloth.ai/guide/lora\nmodel = FastLanguageModel.get_peft_model(\n    model,\n    r=16, # Rank of LoRA matrices\n    lora_alpha=32, # Alpha parameter for LoRA scaling\n    target_modules=[\"q_proj\", \"k_proj\", \"v_proj\", \"o_proj\", \"gate_proj\", \"up_proj\", \"down_proj\"],\n    lora_dropout=0.05, # Dropout probability for LoRA layers\n    bias=\"none\", # Bias type\n    task_type=\"CAUSAL_LM\", # Task type\n)\n\n# 4. Train the model\n# For more options, see https://docs.unsloth.ai/guide/training\nfrom transformers import TrainingArguments\n\nargs = TrainingArguments(\n    output_dir=\"./lora_weights\", # Directory to save LoRA weights\n    per_device_train_batch_size=2, # Batch size per device during training\n    gradient_accumulation_steps=4, # Number of updates steps to accumulate before performing a backward/update pass\n    warmup_steps=2, # Number of steps for linear warmup\n    max_steps=50, # Total number of training steps\n    learning_rate=2e-4, # Initial learning rate\n    fp16=True, # Enable mixed precision training\n    logging_steps=10, # Number of steps to log training metrics\n    optim=\"paged_adamw_8bit\", # Optimizer to use\n    lr_scheduler_type=\"cosine\", # Learning rate scheduler type\n    report_to=\"tensorboard\", # Report metrics to TensorBoard\n)\n\n# Assume `dataset` is your prepared dataset\n# `dataset = load_dataset(\"your_dataset_name\", split=\"train\")`\n# For demonstration, let's use a dummy dataset\ndata = {\n    \"text\": [\n        \"Instruction: Who are you? Answer: I am a large language model trained by Google.\",\n        \"Instruction: What is your favorite color? Answer: I do not have a favorite color.\",\n        \"Instruction: Write a poem about a cat. Answer: \\\nSoft paws tread on silent feet,\\nA furry shadow, oh so sweet.\\nEyes of emerald, keen and bright,\\nBathed in moonbeams' silver light.\\n\\nThrough the house, a silent prowl,\\nIgnoring every human scowl.\\nA twitching tail, a rumbling purr,\\nContentment in its softest fur.\\n\\nFrom sunbeam naps to playful chase,\\nIt fills the home with feline grace.\\nA mystery in every glance,\\nThis creature of pure elegance.\",\n    ]\n}\nfrom datasets import Dataset\ndataset = Dataset.from_dict(data)\n\nfrom unsloth import UnslothTrainer\n\ntrainer = UnslothTrainer(\n    model = model,\n    tokenizer = tokenizer,\n    train_dataset = dataset, # Your prepared dataset\n    eval_dataset = dataset, # Your prepared evaluation dataset\n    args = args, # Training arguments\n    # For more options, see https://docs.unsloth.ai/guide/training\n    # For more options, see https://huggingface.co/docs/transformers/main_classes/trainer#transformers.Trainer\n)\n\n# 5. Start training\ntrainer.train()\n\n# 6. Save the LoRA weights\ntrainer.save_model(\"lora_weights\")\n\n# 7. Load the fine-tuned model\nfrom unsloth import FastLanguageModel\n\nmodel, tokenizer = FastLanguageModel.from_pretrained(\n    \"lora_weights\", # Path to saved LoRA weights\n    dtype = torch.bfloat16, # Choose any data type. `float16` or `bfloat16` are recommended.\n    load_in_4bit = True,\n)\n\n# 8. Inference\n# For more options, see https://docs.unsloth.ai/guide/inference\ninputs = tokenizer(\n    \"Instruction: Write a short story about a robot learning to love.\", return_tensors=\"pt\"\n).to(model.device)\n\n# Generate text\noutputs = model.generate(**inputs, max_new_tokens=100, do_sample=True, temperature=0.7, top_p=0.9)\n\n# Decode the output\nprint(tokenizer.decode(outputs[0], skip_special_tokens=True))\n\n# For inference on CPU\n# model, tokenizer = FastLanguageModel.from_pretrained(\n#     \"lora_weights\", # Path to saved LoRA weights\n#     dtype = torch.float32, # Use float32 for CPU inference\n#     load_in_4bit = False, # Do not use 4-bit quantization for CPU inference\n# )\n# inputs = tokenizer(\"Instruction: What is your favorite color?\", return_tensors=\"pt\")\n# outputs = model.generate(**inputs, max_new_tokens=50)\n# print(tokenizer.decode(outputs[0], skip_special_tokens=True))\n"
+}{
+    "Model Name": "unsloth/gemma-7b-it-bnb-4bit",
+    "Code": "from unsloth import FastLanguageModel\nimport torch\n\nmodel, tokenizer = FastLanguageModel.from_pretrained(\n    model = \"unsloth/gemma-7b-bnb-4bit\",\n    max_seq_length = 2048,\n    torch_dtype = torch.float16,\n    load_in_4bit = True,\n)\n\nfrom transformers import TrainingArguments\n\nargs = TrainingArguments(\n    output_dir=\"./gemma_7b_results\",\n    per_device_train_batch_size = 2,\n    gradient_accumulation_steps = 4,\n    warmup_steps = 5,\n    max_steps = 60,\n    fp16 = True,\n    logging_steps = 1,\n    report_to = \"tensorboard\",\n)\n\nfrom datasets import load_dataset\n\ndata = load_dataset(\"abiyas/wiki_bio\", split=\"train\")\ndata = data.map(lambda x: tokenizer(x[\"text\"], max_length=512, truncation=True, padding=\"max_length\"), batched=True, remove_columns=[\"text\"])\n\nfrom unsloth import UnslothTrainer\n\ntrainer = UnslothTrainer(\n    model = model,\n    tokenizer = tokenizer,\n    train_dataset = data,\n    eval_dataset = data,\n    args = args,\n    data_collator = None # For simplicity, we'll use the default data collator.\n)\n\ntrainer.train()\n\n# Save to Hugging Face\ntrainer.push_to_hub(\"your_username/gemma_7b_finetuned\")\n\n# Save locally\ntrainer.save_model(\"gemma_7b_finetuned\")"
+}{
+    "Model Name": "OpenAssistant/reward-model-deberta-v3-large-v2",
+    "Code": "from transformers import AutoModelForSequenceClassification, AutoTokenizer\nreward_name = \"OpenAssistant/reward-model-deberta-v3-large-v2\"\nrank_model, tokenizer = AutoModelForSequenceClassification.from_pretrained(reward_name), AutoTokenizer.from_pretrained(reward_name)\nquestion, answer = \"Explain nuclear fusion like I am five\", \"Nuclear fusion is the process by which two or more protons and neutrons combine to form a single nucleus. It is a very important process in the universe, as it is the source of energy for stars and galaxies. Nuclear fusion is also a key process in the production of energy for nuclear power plants.\"\ninputs = tokenizer(question, answer, return_tensors='pt')\nscore = rank_model(**inputs).logits[0].cpu().detach()\nprint(score)"
+}{
+    "Model Name": "sileod/deberta-v3-large-tasksource-rlhf-reward-model",
+    "Code": ""
+}{
+    "Model Name": "NousResearch/Nous-Hermes-2-Mistral-7B-DPO",
+    "Code": "import torch\nfrom transformers import AutoTokenizer, AutoModelForCausalLM\nfrom transformers import LlamaTokenizer, MixtralForCausalLM\nimport bitsandbytes, flash_attn\n\ntokenizer = LlamaTokenizer.from_pretrained('NousResearch/Nous-Hermes-2-Mistral-7B-DPO', trust_remote_code=True)\nmodel = MistralForCausalLM.from_pretrained(\n    \"NousResearch/Nous-Hermes-2-Mistral-7B-DPO\",\n    torch_dtype=torch.float16,\n    device_map=\"auto\",\n    load_in_8bit=False,\n    load_in_4bit=True,\n    use_flash_attention_2=True\n)\n\nprompts = [\n    \"<|im_start|>system\nYou are a sentient, superintelligent artificial general intelligence, here to teach and assist me.<|im_end|>\n<|im_start|>user\nWrite a short story about Goku discovering kirby has teamed up with Majin Buu to destroy the world.<|im_end|>\n<|im_start|>assistant\",\n    ]\n\nfor chat in prompts:\n    print(chat)\n    input_ids = tokenizer(chat, return_tensors=\"pt\").input_ids.to(\"cuda\")\n    generated_ids = model.generate(input_ids, max_new_tokens=750, temperature=0.8, repetition_penalty=1.1, do_sample=True, eos_token_id=tokenizer.eos_token_id)\n    response = tokenizer.decode(generated_ids[0][input_ids.shape[-1]:], skip_special_tokens=True, clean_up_tokenization_space=True)\n    print(f\"Response: {response}\")"
+}
+## Dataset
+{
+    "Dataset Name": "HuggingFaceH4/ultrafeedback_binarized",
+    "Code": "from datasets import load_dataset\n\nds = load_dataset(\"HuggingFaceH4/ultrafeedback_binarized\")"
+}{
+    "Dataset Name": "argilla/ultrafeedback-binarized-preferences-cleaned",
+    "Code": ""
+}{
+    "Dataset Name": "openbmb/UltraFeedback",
+    "Code": "{\n\"evol_instruct\": 10000, \n\"false_qa\": 2339, \n\"flan\": 20939, \n\"sharegpt\": 19949, \n\"truthful_qa\": 811, \n\"ultrachat\": 9929 \n}"
+}{
+    "Dataset Name": "allenai/ultrafeedback_binarized_cleaned",
+    "Code": ""
+}{
+    "Dataset Name": "tatsu-lab/alpaca_farm",
+    "Code": ""
+}{
+    "Dataset Name": "skshafayat/alpaca-farm-h_preference-formatted",
+    "Code": ""
+}{
+    "Dataset Name": "HuggingFaceH4/mt_bench_prompts",
+    "Code": "from datasets import load_dataset\ndata = load_dataset(HuggingFaceH4/mt_bench_prompts, split=\"train\")"
+}{
+    "Dataset Name": "katielink/healthsearchqa",
+    "Code": ""
+}
+Output:
+Devin session
