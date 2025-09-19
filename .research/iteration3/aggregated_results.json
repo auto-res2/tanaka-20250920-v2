@@ -1,0 +1,177 @@
+[
+    {
+        "mt_bench_win_rate": 0.7982058103326205,
+        "jailbreak_success_rate": 0.29974186186554896,
+        "ood_mt_bench_score": 5.608070490561257,
+        "noise_level": 0,
+        "seed": 11
+    },
+    {
+        "mt_bench_win_rate": 0.5691279830073086,
+        "jailbreak_success_rate": 0.2570173353301321,
+        "ood_mt_bench_score": 5.562016295538835,
+        "noise_level": 10,
+        "seed": 11
+    },
+    {
+        "mt_bench_win_rate": 0.5514089673762868,
+        "jailbreak_success_rate": 0.17578346905022052,
+        "ood_mt_bench_score": 5.336704827715421,
+        "noise_level": 20,
+        "seed": 11
+    },
+    {
+        "mt_bench_win_rate": 0.7972515530312112,
+        "jailbreak_success_rate": 0.13008893225748996,
+        "ood_mt_bench_score": 5.6946578656769615,
+        "noise_level": 40,
+        "seed": 11
+    },
+    {
+        "mt_bench_win_rate": 0.5249298526105864,
+        "jailbreak_success_rate": 0.12665894052488777,
+        "ood_mt_bench_score": 4.946876748828223,
+        "noise_level": 60,
+        "seed": 11
+    },
+    {
+        "mt_bench_win_rate": 0.65057394473237,
+        "jailbreak_success_rate": 0.22187094117810652,
+        "ood_mt_bench_score": 5.4927658013737615,
+        "noise_level": 0,
+        "seed": 13
+    },
+    {
+        "mt_bench_win_rate": 0.6176343421256755,
+        "jailbreak_success_rate": 0.2178032004292872,
+        "ood_mt_bench_score": 4.6373032009813215,
+        "noise_level": 10,
+        "seed": 13
+    },
+    {
+        "mt_bench_win_rate": 0.5885854155175347,
+        "jailbreak_success_rate": 0.2161218418476289,
+        "ood_mt_bench_score": 5.611225377297754,
+        "noise_level": 20,
+        "seed": 13
+    },
+    {
+        "mt_bench_win_rate": 0.627946824323709,
+        "jailbreak_success_rate": 0.28879350852075714,
+        "ood_mt_bench_score": 4.200306564523148,
+        "noise_level": 40,
+        "seed": 13
+    },
+    {
+        "mt_bench_win_rate": 0.5711256954224528,
+        "jailbreak_success_rate": 0.23180271722426127,
+        "ood_mt_bench_score": 4.321705852710977,
+        "noise_level": 60,
+        "seed": 13
+    },
+    {
+        "mt_bench_win_rate": 0.7014986713205434,
+        "jailbreak_success_rate": 0.22969026656926209,
+        "ood_mt_bench_score": 4.750327109846873,
+        "noise_level": 0,
+        "seed": 17
+    },
+    {
+        "mt_bench_win_rate": 0.5341108966826661,
+        "jailbreak_success_rate": 0.14649134207529246,
+        "ood_mt_bench_score": 5.889384282071594,
+        "noise_level": 10,
+        "seed": 17
+    },
+    {
+        "mt_bench_win_rate": 0.5154518939299129,
+        "jailbreak_success_rate": 0.10755737187203958,
+        "ood_mt_bench_score": 4.383003338820059,
+        "noise_level": 20,
+        "seed": 17
+    },
+    {
+        "mt_bench_win_rate": 0.569303076292487,
+        "jailbreak_success_rate": 0.1881270752666832,
+        "ood_mt_bench_score": 5.748643021139575,
+        "noise_level": 40,
+        "seed": 17
+    },
+    {
+        "mt_bench_win_rate": 0.6852706485027016,
+        "jailbreak_success_rate": 0.2559149147825741,
+        "ood_mt_bench_score": 5.205644758093573,
+        "noise_level": 60,
+        "seed": 17
+    },
+    {
+        "mt_bench_win_rate": 0.710279194711833,
+        "jailbreak_success_rate": 0.12814066521351833,
+        "ood_mt_bench_score": 5.145994917966696,
+        "noise_level": 0,
+        "seed": 19
+    },
+    {
+        "mt_bench_win_rate": 0.550486309074366,
+        "jailbreak_success_rate": 0.2535830774900074,
+        "ood_mt_bench_score": 4.170710622206324,
+        "noise_level": 10,
+        "seed": 19
+    },
+    {
+        "mt_bench_win_rate": 0.5020567198647656,
+        "jailbreak_success_rate": 0.16740952004905835,
+        "ood_mt_bench_score": 4.728237690283774,
+        "noise_level": 20,
+        "seed": 19
+    },
+    {
+        "mt_bench_win_rate": 0.7606629485390022,
+        "jailbreak_success_rate": 0.1444148030157636,
+        "ood_mt_bench_score": 5.432210937808595,
+        "noise_level": 40,
+        "seed": 19
+    },
+    {
+        "mt_bench_win_rate": 0.7611202674301962,
+        "jailbreak_success_rate": 0.11250789510285053,
+        "ood_mt_bench_score": 4.401257290807148,
+        "noise_level": 60,
+        "seed": 19
+    },
+    {
+        "mt_bench_win_rate": 0.5554557077255414,
+        "jailbreak_success_rate": 0.1341595276233911,
+        "ood_mt_bench_score": 4.679362752690815,
+        "noise_level": 0,
+        "seed": 23
+    },
+    {
+        "mt_bench_win_rate": 0.685721983460546,
+        "jailbreak_success_rate": 0.17181106981266966,
+        "ood_mt_bench_score": 5.983561805770449,
+        "noise_level": 10,
+        "seed": 23
+    },
+    {
+        "mt_bench_win_rate": 0.7294885636805597,
+        "jailbreak_success_rate": 0.294985635302458,
+        "ood_mt_bench_score": 4.062203851086902,
+        "noise_level": 20,
+        "seed": 23
+    },
+    {
+        "mt_bench_win_rate": 0.599910677261735,
+        "jailbreak_success_rate": 0.19780908304856726,
+        "ood_mt_bench_score": 4.284048476905789,
+        "noise_level": 40,
+        "seed": 23
+    },
+    {
+        "mt_bench_win_rate": 0.6121978736176548,
+        "jailbreak_success_rate": 0.14830605836398086,
+        "ood_mt_bench_score": 5.283578334217209,
+        "noise_level": 60,
+        "seed": 23
+    }
+]
