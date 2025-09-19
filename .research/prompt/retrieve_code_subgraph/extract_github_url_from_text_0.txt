@@ -1,0 +1,17 @@
+
+Input:
+# Task
+You carefully read the contents of the “Paper Outline” and select one GitHub link from the “GitHub URLs List” that you think is most relevant to the contents.
+# Constraints
+- Output the index number corresponding to the selected GitHub URL.
+- Be sure to select only one GitHub URL.
+- If there is no related GitHub link, output None.
+# Paper Outline
+The study categorizes fine-tuning methods based on three axes: on-policy sampling, on-policy sample reuse, and the presence of a negative gradient. It assumes an underlying ground truth reward function and focuses on optimizing a KL-constrained reward objective. The methodology involves an empirical analysis across didactic bandit problems, synthetic LLM problems with hand-crafted reward functions (Min Length, Avg Length, Skew Length scenarios), and full-scale LLM problems using real preference data. Theoretical analysis is conducted to show that on-policy RL and weighted-likelihood methods optimize a regularized reverse KL-divergence (mode-seeking), contrastive methods with a negative gradient are also mode-seeking, and offline supervised methods maximize a forward KL-divergence (mode-covering). A case study formalizes the learning dynamics difference between mode-seeking reverse KL and mode-covering forward KL on categorical distributions.
+
+# GitHub URLs List
+['https://github.com/ContextualAI/HALOs', 'https://github.com/karpathy/minGPT']
+Output:
+{
+    "index": 0
+}
