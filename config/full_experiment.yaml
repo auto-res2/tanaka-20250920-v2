@@ -1,0 +1,44 @@
+model_name: "unsloth/mistral-7b-instruct-v0.3-bnb-4bit"
+reward_model_name: "OpenAssistant/reward-model-deberta-v3-large-v2"
+output_dir: ".research/iteration1/"
+
+datasets:
+  ultrafeedback: "HuggingFaceH4/ultrafeedback_binarized"
+  alpacafarm: "tatsu-lab/alpaca_farm"
+
+noise_levels: [0, 10, 20, 40, 60]
+seeds: [11, 13, 17, 19, 23]
+
+training_args:
+  output_dir: ".research/iteration1/full_experiment_checkpoints/"
+  num_train_epochs: 2
+  per_device_train_batch_size: 4 # Adjusted for single A100-80GB VRAM limits
+  gradient_accumulation_steps: 8 # Effective batch size = 4 * 8 = 32 per GPU
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_steps: 200
+  weight_decay: 0.1
+  optim: "adamw_torch"
+  bf16: true
+  logging_steps: 10
+  save_strategy: "epoch"
+  evaluation_strategy: "epoch"
+  do_eval: true
+  report_to: "wandb" # Assumes wandb is configured
+
+lora_config:
+  r: 64
+  lora_alpha: 16
+  lora_dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+
+r2d2po_params:
+  beta: 0.1
+  alpha: 0.4
+  gamma: 1.28
+  ensemble_size: 4
+
+evaluation:
+  mt_bench_dataset: "HuggingFaceH4/mt_bench_prompts"
