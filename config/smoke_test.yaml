@@ -1,6 +1,6 @@
-model_name: "unsloth/mistral-7b-instruct-v0.3-bnb-4bit"
+model_name: "gpt2"
 reward_model_name: "OpenAssistant/reward-model-deberta-v3-large-v2"
-output_dir: ".research/iteration1/"
+output_dir: ".research/iteration2/"
 max_samples: 50
 
 datasets:
@@ -10,19 +10,21 @@ noise_levels: [0, 40] # Test clean and one noisy condition
 seeds: [42]
 
 training_args:
-  output_dir: ".research/iteration1/smoke_test_checkpoints/"
+  output_dir: ".research/iteration2/smoke_test_checkpoints/"
   num_train_epochs: 1
   per_device_train_batch_size: 1
-  gradient_accumulation_steps: 2
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: false
+  dataloader_pin_memory: false
   learning_rate: 2.0e-5
   lr_scheduler_type: "cosine"
   warmup_steps: 2
   optim: "adamw_torch"
-  bf16: true
+  fp16: true
   logging_steps: 1
   save_steps: 5
   eval_steps: 5
-  evaluation_strategy: "steps"
+  eval_strategy: "steps"
   do_eval: true
   report_to: "none"
 
