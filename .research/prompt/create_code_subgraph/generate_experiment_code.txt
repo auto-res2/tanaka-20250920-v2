@@ -79,6 +79,11 @@ File names must follow the format: `<figure_topic>[_<condition>][_pairN].pdf`
 ## Full Experiment Validation Feedback
 
 
+**Critical Issue Detected**: The previous code generation failed full experiment validation:
+Evaluation functions return random placeholder scores (MT-Bench, safety); NoiseBench corruption logic simplified to random flips only; gating/curriculum not implemented; evaluation uses three toy prompts instead of specified benchmarks; therefore full experiment not production-ready and contains placeholders.
+
+**Required Action**: Address this validation failure by ensuring your generated code strictly follows the Hugging Face code requirements and implements genuine full experiments using real datasets and models.
+
 
 
 # Experimental Environment
