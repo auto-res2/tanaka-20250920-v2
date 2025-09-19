@@ -3,5 +3,19 @@
   "queries": [
     "LLM fine-tuning loss function",
     "LLM ファインチューニング 損失関数"
+  ],
+  "research_study_list": [
+    {
+      "title": "Preference Fine-Tuning of LLMs Should Leverage Suboptimal, On-Policy Data"
+    },
+    {
+      "title": "Discovering Preference Optimization Algorithms with and for Large Language Models"
+    },
+    {
+      "title": "When Scaling Meets LLM Finetuning: The Effect of Data, Model and Finetuning Method"
+    },
+    {
+      "title": "Beyond Imitation: Leveraging Fine-grained Quality Signals for Alignment"
+    }
   ]
 }
