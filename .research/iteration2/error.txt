@@ -1,0 +1,4 @@
+Using CPython 3.11.13
+error: The requested interpreter resolved to Python 3.11.13, which is incompatible with the project's Python requirement: `>=3.12` (from `project.requires-python`)
+Using CPython 3.11.13
+error: The requested interpreter resolved to Python 3.11.13, which is incompatible with the project's Python requirement: `>=3.12` (from `project.requires-python`)
